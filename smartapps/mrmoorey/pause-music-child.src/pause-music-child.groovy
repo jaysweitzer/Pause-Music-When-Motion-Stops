@@ -71,7 +71,14 @@ def inactiveHandler(evt) {
 
 def pause() {
 	log.debug "pause ${player}"
-	if(state.pending) player.pause()
+	if(state.pending) { 
+		player.pause()
+		/* Get the current state again. If there's still no motion we can set another timer */
+		/* If the motion sensor is triggered, it will override the current setting */
+		state.pending = !("active" in motions.currentMotion)
+		/* Ensure music stops after the allotted time even if the motion sensor is already in the inactive state */
+		if(minutes) runIn(minutes*60, pause)
+	}
 }
 
 // a method that will set the default label of the automation.
